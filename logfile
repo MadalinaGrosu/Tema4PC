@@ -1,0 +1,29 @@
+; 8.8.8.8 - google.com A 
+
+;; ANSWER SECTION:
+google.com. IN A 62.231.75.241 
+google.com. IN A 62.231.75.221 
+google.com. IN A 62.231.75.247 
+google.com. IN A 62.231.75.231 
+google.com. IN A 62.231.75.216 
+google.com. IN A 62.231.75.237 
+google.com. IN A 62.231.75.222 
+google.com. IN A 62.231.75.217 
+google.com. IN A 62.231.75.226 
+google.com. IN A 62.231.75.242 
+google.com. IN A 62.231.75.236 
+google.com. IN A 62.231.75.232 
+google.com. IN A 62.231.75.246 
+google.com. IN A 62.231.75.212 
+google.com. IN A 62.231.75.251 
+google.com. IN A 62.231.75.227 
+
+
+; 8.8.8.8 - yahoo.com MX 
+
+;; ANSWER SECTION:
+yahoo.com. IN MX 1 mta5.am0.yahoodns.net. 
+yahoo.com. IN MX 1 mta6.am0.yahoodns.net. 
+yahoo.com. IN MX 1 mta7.am0.yahoodns.net. 
+
+

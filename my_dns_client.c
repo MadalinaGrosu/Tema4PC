@@ -234,15 +234,150 @@ int get_host_by_name(unsigned char *host, unsigned char *server, int query_type,
 					}
 				case 15 : /* Mail exchange */
 					{
+						answer.rdata = (unsigned char*)malloc(ntohs(answer.resource->rdlength));
+						unsigned short *preferences = (unsigned short *) reader;
+						reader += 2;
+						
+						answer.rdata = read_name(reader, buf, &stop);
+						reader += stop;
+						
+						memset(header,0,strlen(header));
+						sprintf(header,"MX\t%i\t%s\n",preferences,answer.rdata);
+						write(fd,header,strlen(header));
+						
 						break;
 					}
 				default :
 					{
+						char *type;
+						switch (answer.resource->type) {
+							case 2 :
+								type = "NS";
+								break;
+							case 5 :
+								type = "CNAME";
+								break;
+							case 16 :
+								type = "TXT";
+								break;
+							default :
+								type = "";
+						}
 						
+						answer.rdata = read_name(reader, buf, &stop);
+						reader += stop;
+						
+						memset(header,0,strlen(header));
+						sprintf(header,"%s\t%s\n",type,answer.rdata);
+						write(fd,header,strlen(header));
 					}
+			}			
+		}
+		
+		/* Handling authorities */
+		if (ntohs(dns_header->nscount) > 0) {
+			memset(header,0,strlen(header));
+			header = "\n\n;; AUTHORITY SECTION:\n";
+			write(fd,header,strlen(header));
+		}
+			
+		for (i = 0; i < ntohs(dns_header->nscount); i++) {
+			memset(&answer,0,sizeof(answer));
+			answer.name = read_name(reader,buf,&stop);
+			reader += stop;
+			
+			answer.resource = (dns_rr_t *)reader;
+			reader += sizeof(dns_rr_t);
+			
+			answer.rdata = read_name(reader,buf,&stop);
+			reader += stop;
+			char *type;
+			
+			switch (answer.resource->type) {
+				case 1 :
+					type = "A";
+					break;
+				case 2 :
+					type = "NS";
+					break;
+				case 5 :
+					type = "CNAME";
+					break;
+				case 6 :
+					type = "SOA";
+					break;
+				case 15 :
+					type = "MX";
+					break;
+				case 16 :
+					type = "TXT";
+					break;
+				default :
+					type = "";
 			}
 			
+			char *class;
+			if (answer.resource->class == 1) {
+				class = "IN";
+			} else {
+				class = "";
+			}
+			memset(header,0,strlen(header));
+			sprintf(header,"%s\t%s\t%s\n",class,type,answer.rdata);
+			write(fd,header,strlen(header));
+		}
+		
+		/* Handling additional section */
+		if (ntohs(dns_header->arcount) > 0) {
+			memset(header,0,strlen(header));
+			header = "\n\n;; ADDITIONAL SECTION:\n";
+			write(fd,header,strlen(header));
+		}
 			
+		for (i = 0; i < ntohs(dns_header->arcount); i++) {
+			memset(&answer,0,sizeof(answer));
+			answer.name = read_name(reader,buf,&stop);
+			reader += stop;
+			
+			answer.resource = (dns_rr_t *)reader;
+			reader += sizeof(dns_rr_t);
+			
+			answer.rdata = read_name(reader,buf,&stop);
+			reader += stop;
+			char *type;
+			
+			switch (answer.resource->type) {
+				case 1 :
+					type = "A";
+					break;
+				case 2 :
+					type = "NS";
+					break;
+				case 5 :
+					type = "CNAME";
+					break;
+				case 6 :
+					type = "SOA";
+					break;
+				case 15 :
+					type = "MX";
+					break;
+				case 16 :
+					type = "TXT";
+					break;
+				default :
+					type = "";
+			}
+			
+			char *class;
+			if (answer.resource->class == 1) {
+				class = "IN";
+			} else {
+				class = "";
+			}
+			memset(header,0,strlen(header));
+			sprintf(header,"%s\t%s\t%s\n",class,type,answer.rdata);
+			write(fd,header,strlen(header));
 		}
 	}
 	
